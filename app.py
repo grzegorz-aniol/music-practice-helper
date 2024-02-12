@@ -93,7 +93,6 @@ class App:
             self.__main_window.console.print('Preparation wait ({} seconds)...'.format(App.AUDIO_WAIT))
             self.__main_window.refresh()
             sleep(App.AUDIO_WAIT)
-            # self.opened_processes.append(self.__run_doc(self.documents.get_tools()['audio'], document['audio']))
             audio_path = self.__documents.expand_path(document['audio'])
             self.__player.stop()
             self.__player.play(audio_path)
