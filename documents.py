@@ -20,8 +20,6 @@ class Documents:
     Document locations are stored in local json file 'documents.json'
     """
 
-    AUDIO_WAIT = 3
-
     def __init__(self):
         self.documents = None
         self.tools = {}

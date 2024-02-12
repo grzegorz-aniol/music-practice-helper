@@ -12,6 +12,7 @@ class ThreadUpdater:
     """
         Thread that sends in regular periods notification to update progress bar
     """
+
     def __init__(self, window):
         self.started = False
         self.terminated = False
@@ -35,6 +36,8 @@ class App:
     """
     Main application
     """
+
+    AUDIO_WAIT = 3
 
     def __init__(self):
         self.__documents = None
@@ -87,8 +90,9 @@ class App:
         if 'pdf' in document.keys():
             self.__opened_processes.append(self.__run_doc(self.__documents.get_tools()['pdf'], document['pdf']))
         if 'audio' in document.keys():
-            print('Preparation wait for starting the audio...({} seconds)'.format(Documents.AUDIO_WAIT))
-            sleep(Documents.AUDIO_WAIT)
+            self.__main_window.console.print('Preparation wait ({} seconds)...'.format(App.AUDIO_WAIT))
+            self.__main_window.refresh()
+            sleep(App.AUDIO_WAIT)
             # self.opened_processes.append(self.__run_doc(self.documents.get_tools()['audio'], document['audio']))
             audio_path = self.__documents.expand_path(document['audio'])
             self.__player.stop()
