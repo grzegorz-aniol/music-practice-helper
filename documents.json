@@ -1,0 +1,139 @@
+{
+  "tools": {
+    "audio": {
+      "path": "totem",
+      "parameters": ""
+    },
+    "pdf": {
+      "path": "evince",
+      "parameters": ""
+    }
+  },
+  "paths": {
+    "KARIN_BEGINNER": "/home/gangel/Documents/PRIV/Saxophone/KarinKroch-TheCompleteBeginnerSaxophoneCourse",
+    "NIGEL_GETTING_STARTED": "/home/gangel/Documents/PRIV/Saxophone/SaxSchool/GettingStarted",
+    "AUDIO_TRACKS": "/home/gangel/Documents/PRIV/Saxophone"
+  },
+  "items": {
+    "10rhythms": {
+      "name": "10 rhythms practice",
+      "pdf": "KARIN_BEGINNER/10+Rhythm+Exercises.pdf"
+    },
+    "workout5min": {
+      "name": "5 minutes workout",
+      "pdf": "NIGEL_GETTING_STARTED/5-min-workout/Nigels_5min_Warmup_Workout_-_Alto_Sax.pdf",
+      "audio": "NIGEL_GETTING_STARTED/5-min-workout/5_Minute_Warmup_Workout_Practice_Track.mp3"
+    },
+    "risingsun": {
+      "name": "HouseOfTheRisingSun",
+      "audio": "KARIN_BEGINNER/HouseOfTheRisingSun/House+of+the+Rising+Sun+Backtrack+(without+click).mp3",
+      "pdf": "KARIN_BEGINNER/HouseOfTheRisingSun/House+of+the+Rising+Sun+-+Alto+Saxophone.pdf"
+    },
+    "grooveit": {
+      "name": "GrooveIt!",
+      "audio": "KARIN_BEGINNER/GrooveIt/Groove+It!+Backtrack+(without+click).mp3",
+      "pdf": "KARIN_BEGINNER/GrooveIt/Groove+It!+-+Alto+Saxophone.pdf"
+    },
+    "baker": {
+      "name": "Baker Avenue",
+      "pdf": "NIGEL_GETTING_STARTED/Baker_Avenue_-_All_Saxes.pdf",
+      "audio": "NIGEL_GETTING_STARTED/Baker_Avenue_Practice_Track.mp3"
+    },
+    "freeloader": {
+      "name": "Freddie Freeloader",
+      "pdf": "NIGEL_GETTING_STARTED/Freddie_Freeloader_-_All_Saxes.pdf",
+      "audio": "NIGEL_GETTING_STARTED/Freddie_Freeloader_Practice_Track.mp3"
+    },
+    "sentimental": {
+      "name": "Sentimental Journey",
+      "pdf": "NIGEL_GETTING_STARTED/Sentimental_Journey_-_Alto_Sax.pdf",
+      "audio": "NIGEL_GETTING_STARTED/Sentimental_Journey_Practice_Track_with_Lead_Parts.mp3"
+    },
+    "swingin": {
+      "name": "Swingin' Easy",
+      "pdf": "NIGEL_GETTING_STARTED/Swingin_Easy_-_Essential_Quick_Start_-_Alto_Sax.pdf",
+      "audio": "NIGEL_GETTING_STARTED/Swingin_Easy_Backing_Track.mp3"
+    },
+    "sweet": {
+      "name": "Swing Log Sweet Chariot",
+      "pdf": "NIGEL_GETTING_STARTED/Swing_Low_Sweet_Chariot_-_Alto_Saxophone.pdf",
+      "audio": "NIGEL_GETTING_STARTED/Swing_Low_Sweet_Chariot_Backing_Track.mp3"
+    },
+    "easyonmy": {
+      "name": "Easy on Me",
+      "audio": "AUDIO_TRACKS/Adele - Easy on Me (minus) -2 semitones.mp3"
+    },
+    "pink": {
+      "name": "The Pink Panther",
+      "audio": "AUDIO_TRACKS/Arturo Himmer - The Pink Panther (minus) -4 semitones.mp3"
+    },
+    "lily": {
+      "name": "Lilly Was Here",
+      "audio": "AUDIO_TRACKS/Candy Dulfer - Lilly Was Here (minus) +1 semitone.mp3"
+    },
+    "myheart": {
+      "name": "My Heart Will Go on",
+      "audio": "AUDIO_TRACKS/Céline Dion - My Heart Will Go on (minus) -1 semitone.mp3"
+    },
+    "lady": {
+      "name": "Lady In Red",
+      "audio": "AUDIO_TRACKS/Chris De Burgh - Lady In Red (minus 5).mp3"
+    },
+    "fly": {
+      "name": "Fly Me To The Moon",
+      "audio": "AUDIO_TRACKS/Frank Sinatra - Fly Me To The Moon (minus 12) +3 semitones.mp3"
+    },
+    "myway": {
+      "name": "My Way",
+      "audio": "AUDIO_TRACKS/Frank Sinatra - My Way (minus) +1 semitone.mp3"
+    },
+    "stupid": {
+      "name": "Something Stupid",
+      "audio": "AUDIO_TRACKS/Frank Sinatra - Something Stupid (minus) +1 semitone Bb.mp3"
+    },
+    "ipanema+3": {
+      "name": "Girl From Ipanema +3",
+      "audio": "AUDIO_TRACKS/Jazz Standards - Girl From Ipanema (minus) +3 semitones.mp3"
+    },
+    "ipanema-3": {
+      "name": "Girl From Ipanema -3",
+      "audio": "AUDIO_TRACKS/Jazz Standards - Girl From Ipanema (minus) -3 semitones.mp3"
+    },
+    "hallelujah": {
+      "name": "Hallelujah",
+      "audio": "AUDIO_TRACKS/Leonard Cohen - Hallelujah (minus 7) -2 semitones.mp3"
+    },
+    "wonderful": {
+      "name": "What A Wonderful World",
+      "audio": "AUDIO_TRACKS/Louis Armstrong - What A Wonderful World (minus 3).mp3"
+    },
+    "california": {
+      "name": "California Dreamin'",
+      "audio": "AUDIO_TRACKS/Mamas -1 semitone-Cminor.mp3"
+    },
+    "rapsody": {
+      "name": "Bohemian Rapsody",
+      "audio": "AUDIO_TRACKS/Queen - Bohemian Rapsody (minus).mp3"
+    },
+    "creep": {
+      "name": "Creep",
+      "audio": "AUDIO_TRACKS/Radiohead - Creep (minus 3) +1 semitone.mp3"
+    },
+    "reed": {
+      "name": "reed voiceover",
+      "audio": "AUDIO_TRACKS/reed voiceover.mp3"
+    },
+    "loving": {
+      "name": "Still Loving You",
+      "audio": "AUDIO_TRACKS/Scorpions - Still Loving You (minus 3) -2 semitones.mp3"
+    },
+    "shape": {
+      "name": "Shape of My Heart",
+      "audio": "AUDIO_TRACKS/Sting - Shape of My Heart (minus) +1 semitone.mp3"
+    },
+    "withor": {
+      "name": "With Or Without You",
+      "audio": "AUDIO_TRACKS/U2 - With Or Without You (minus 2) +3 semitones.mp3"
+    }
+  }
+}
