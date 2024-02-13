@@ -48,14 +48,18 @@ class App:
 
     def run(self):
         """Run application"""
-        self.__documents = Documents()
-        self.__documents.load()
+        self.__load_documents()
         items = self.__documents.get_codes_and_names()
         self.__build_main_window(items)
         self.__ui_loop()
         self.__player.stop()
         self.__main_window.close()
         self.__close_processes()
+
+    def __load_documents(self):
+        self.__documents = Documents()
+        self.__documents.load()
+
 
     def __build_main_window(self, items):
         sg.set_options(font=("Arial", 15))
@@ -64,15 +68,17 @@ class App:
                                expand_y=True)
         progress_bar = sg.ProgressBar(size=(50, 10), max_value=0)
         btn_stop = sg.Button('Stop', disabled=True)
+        btn_pause = sg.Button('Pause', disabled=True)
         layout = [[sg.Text('Pickup any song/tune from the list')],
                   [listbox],
                   [console],
                   [progress_bar],
-                  [sg.Button('Run'), btn_stop]]
+                  [sg.Button('Run'), btn_pause, btn_stop]]
         window = sg.Window(f'Music Practice Helper v {__APP_VERSION__}', layout, resizable=True, scaling=True)
         window.listbox = listbox
         window.console = console
         window.btn_stop = btn_stop
+        window.btn_pause = btn_pause
         window.progress_bar = progress_bar
         self.__main_window = window
         return window
@@ -106,15 +112,20 @@ class App:
     def __ui_loop(self):
         window = self.__main_window
         while True:
-            event, values = window.read()
-            if event == 'Run':
-                self.__run_item()
-            elif event == 'Stop':
-                self.__stop_item()
-            elif event == 'UPDATE_PROGRESS':
-                self.__update_progress()
-            elif event == sg.WIN_CLOSED:
-                break
+            try:
+                event, values = window.read()
+                if event == 'Run':
+                    self.__run_item()
+                elif event == 'Stop':
+                    self.__stop_item()
+                elif event == 'Pause':
+                    self.__pause_item()
+                elif event == 'UPDATE_PROGRESS':
+                    self.__update_progress()
+                elif event == sg.WIN_CLOSED:
+                    break
+            except Exception as ex:
+                sg.popup(f'Error: {ex}')
 
     def __update_progress(self):
         position = self.__player.get_pos()
@@ -133,8 +144,17 @@ class App:
         self.__close_processes()
         console.print('Done.\n')
         window.btn_stop.update(disabled=True)
+        window.btn_pause.update(disabled=True)
         window.progress_bar.update(0)
         window.refresh()
+
+    def __pause_item(self):
+        window = self.__main_window
+        console = window.console
+        self.__player.pause() # or unpause (if it's paused already)
+        console.Update('Paused..\n' if self.__player.is_paused() else 'Playing..\n')
+        window.refresh()
+
 
     def __run_item(self):
         window = self.__main_window
@@ -153,10 +173,12 @@ class App:
             audio_len = self.__player.get_len()
             window.progress_bar.update(max=audio_len)
             window.btn_stop.update(disabled=False)
+            window.btn_pause.update(disabled=False)
             window.refresh()
             self.__progress_thread = ThreadUpdater(window)
             window.start_thread(lambda: self.__progress_thread.run(), end_key='UPDATE_PROGRESS_END')
         except Exception as ex:
             window.btn_stop.update(disabled=True)
+            window.btn_pause.update(disabled=True)
             window.refresh()
             sg.popup(f'Error {ex}')

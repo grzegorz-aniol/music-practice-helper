@@ -1,5 +1,5 @@
 import json
-
+import os
 
 class DocumentEntry:
 
@@ -19,6 +19,7 @@ class Documents:
      * or both paths
     Document locations are stored in local json file 'documents.json'
     """
+    FILE_NAME = 'documents.json'
 
     def __init__(self):
         self.documents = None
@@ -26,8 +27,17 @@ class Documents:
         self.paths = {}
 
     def load(self):
-        with open('documents.json') as input_file:
-            self.documents = json.load(input_file)
+        locations = ['.', os.getenv('HOME')+'/.music-practice']
+        for location in locations:
+            file_path = f'{location}/{Documents.FILE_NAME}'
+            if os.path.isfile(file_path):
+                with open(file_path) as input_file:
+                    self.documents = json.load(input_file)
+                break
+
+        if self.documents is None:
+            raise Exception(f'Cannot find database file {Documents.FILE_NAME}')
+
         self.tools = self.documents['tools']
         self.paths = self.documents['paths']
 
