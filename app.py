@@ -1,7 +1,9 @@
 import subprocess
-import PySimpleGUI as sg
-from documents import Documents
 from time import sleep
+
+import PySimpleGUI as sg
+
+from documents import Documents
 
 __APP_VERSION__ = "1.0"
 
@@ -38,6 +40,9 @@ class App:
     """
 
     AUDIO_WAIT = 3
+    LIST_FILTER_ALL = 'list_filter_all'
+    LIST_FILTER_AUDIO_ONLY = 'list_filter_audio_only'
+    LIST_FILTER_PDF_ONLY = 'list_filter_pdf_only'
 
     def __init__(self):
         self.__documents = None
@@ -45,11 +50,13 @@ class App:
         self.__player = Player()
         self.__main_window = None
         self.__progress_thread = None
+        self.__is_playing = False
+        self.__is_pause = False
 
     def run(self):
         """Run application"""
         self.__load_documents()
-        items = self.__documents.get_codes_and_names()
+        items = self.__documents.get_entries()
         self.__build_main_window(items)
         self.__ui_loop()
         self.__player.stop()
@@ -60,21 +67,31 @@ class App:
         self.__documents = Documents()
         self.__documents.load()
 
-
     def __build_main_window(self, items):
         sg.set_options(font=("Arial", 15))
         listbox = sg.Listbox(items, size=(50, 20), expand_x=True, expand_y=True)
+        rd_all = sg.Radio('all', 'list_filter', key=App.LIST_FILTER_ALL, default=True,
+                          enable_events=True)
+        rd_audio_only = sg.Radio('with audio only', 'list_filter', key=App.LIST_FILTER_AUDIO_ONLY,
+                                 enable_events=True)
+        rd_pdf_only = sg.Radio('with PDF only', 'list_filter', key=App.LIST_FILTER_PDF_ONLY,
+                               enable_events=True)
         console = sg.Multiline("", disabled=True, autoscroll=True, write_only=False, size=(50, 5), expand_x=True,
                                expand_y=True)
         progress_bar = sg.ProgressBar(size=(50, 10), max_value=0)
-        btn_stop = sg.Button('Stop', disabled=True)
+        btn_run = sg.Button('Run')
         btn_pause = sg.Button('Pause', disabled=True)
+        btn_stop = sg.Button('Stop', disabled=True)
         layout = [[sg.Text('Pickup any song/tune from the list')],
+                  [sg.Text('Filter:'), rd_all, rd_audio_only, rd_pdf_only],
                   [listbox],
                   [console],
                   [progress_bar],
-                  [sg.Button('Run'), btn_pause, btn_stop]]
+                  [btn_run, btn_pause, btn_stop]]
         window = sg.Window(f'Music Practice Helper v {__APP_VERSION__}', layout, resizable=True, scaling=True)
+        window.rd_all = rd_all
+        window.rd_audio_only = rd_audio_only
+        window.rd_pdf_only = rd_pdf_only
         window.listbox = listbox
         window.console = console
         window.btn_stop = btn_stop
@@ -83,8 +100,9 @@ class App:
         self.__main_window = window
         return window
 
-    def __run_doc(self, tool, path):
-        return subprocess.Popen([tool['path'], self.__documents.expand_path(path)])
+    def __run_doc(self, tool, doc_path):
+        process_info = subprocess.Popen([tool['path'], self.__documents.expand_path(doc_path)])
+        return process_info
 
     def __run_process(self, code):
         self.__close_processes()
@@ -92,9 +110,19 @@ class App:
             print('Cannot find document')
             return
         document = self.__documents.get_items()[code]
+
         self.__opened_processes = []
+
         if 'pdf' in document.keys():
-            self.__opened_processes.append(self.__run_doc(self.__documents.get_tools()['pdf'], document['pdf']))
+            tool = self.__documents.get_tools()['pdf']
+            doc_path = document['pdf']
+            self.__main_window.console.print('Opening PDF. Tool: {}, doc: {}'.format(tool, doc_path))
+            process_info = self.__run_doc(tool, doc_path)
+            self.__main_window.console.print('PID={}, poll={}'.format(process_info.pid, process_info.poll()))
+            self.__opened_processes.append(process_info)
+        else:
+            self.__main_window.console.print('Cannot find PDF')
+
         if 'audio' in document.keys():
             self.__main_window.console.print('Preparation wait ({} seconds)...'.format(App.AUDIO_WAIT))
             self.__main_window.refresh()
@@ -102,12 +130,14 @@ class App:
             audio_path = self.__documents.expand_path(document['audio'])
             self.__player.stop()
             self.__player.play(audio_path)
+            self.__is_playing = True
 
     def __close_processes(self):
         for pr in self.__opened_processes:
             pr.terminate()
         self.__opened_processes = []
         self.__player.stop()
+        self.__is_playing = False
 
     def __ui_loop(self):
         window = self.__main_window
@@ -122,6 +152,12 @@ class App:
                     self.__pause_item()
                 elif event == 'UPDATE_PROGRESS':
                     self.__update_progress()
+                elif event == App.LIST_FILTER_ALL:
+                    self.__filter_documents()
+                elif event == App.LIST_FILTER_AUDIO_ONLY:
+                    self.__filter_documents(audio=True, pdf=False)
+                elif event == App.LIST_FILTER_PDF_ONLY:
+                    self.__filter_documents(audio=False, pdf=True)
                 elif event == sg.WIN_CLOSED:
                     break
             except Exception as ex:
@@ -142,19 +178,18 @@ class App:
         console.Update('Stopping...\n')
         window.refresh()
         self.__close_processes()
+        self.__is_playing = False
         console.print('Done.\n')
-        window.btn_stop.update(disabled=True)
-        window.btn_pause.update(disabled=True)
         window.progress_bar.update(0)
-        window.refresh()
+        self.__update_ui_states()
 
     def __pause_item(self):
         window = self.__main_window
         console = window.console
         self.__player.pause() # or unpause (if it's paused already)
+        self.__is_pause = self.__player.is_paused()
         console.Update('Paused..\n' if self.__player.is_paused() else 'Playing..\n')
-        window.refresh()
-
+        self.__update_ui_states()
 
     def __run_item(self):
         window = self.__main_window
@@ -174,11 +209,34 @@ class App:
             window.progress_bar.update(max=audio_len)
             window.btn_stop.update(disabled=False)
             window.btn_pause.update(disabled=False)
-            window.refresh()
             self.__progress_thread = ThreadUpdater(window)
             window.start_thread(lambda: self.__progress_thread.run(), end_key='UPDATE_PROGRESS_END')
+            self.__is_playing = True
+            self.__update_ui_states()
         except Exception as ex:
             window.btn_stop.update(disabled=True)
             window.btn_pause.update(disabled=True)
             window.refresh()
             sg.popup(f'Error {ex}')
+
+    def __update_ui_states(self):
+        window = self.__main_window
+        window.btn_stop.update(disabled=not self.__is_playing)
+        window.btn_pause.update(disabled=not self.__is_playing)
+        window.rd_all.update(disabled=self.__is_playing)
+        window.rd_audio_only.update(disabled=self.__is_playing)
+        window.rd_pdf_only.update(disabled=self.__is_playing)
+        window.refresh()
+
+    def __filter_documents(self, audio=True, pdf=True):
+        listbox = self.__main_window.listbox
+        items = self.__documents.get_entries()
+        result_items = []
+        for item in items:
+            if not audio and item.is_audio:
+                continue
+            if not pdf and item.is_pdf:
+                continue
+            result_items.append(item)
+        listbox.update(result_items)
+        self.__main_window.refresh()
