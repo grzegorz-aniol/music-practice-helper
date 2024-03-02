@@ -1,7 +1,7 @@
-import subprocess
 from time import sleep
 
 import PySimpleGUI as sg
+import fitz
 
 from documents import Documents
 
@@ -48,10 +48,12 @@ class App:
         self.__documents = None
         self.__opened_processes = []
         self.__player = Player()
+        self.__pdf = None
         self.__main_window = None
         self.__progress_thread = None
         self.__is_playing = False
         self.__is_pause = False
+        self.__DPI = 90
 
     def run(self):
         """Run application"""
@@ -69,26 +71,41 @@ class App:
 
     def __build_main_window(self, items):
         sg.set_options(font=("Arial", 15))
-        listbox = sg.Listbox(items, size=(50, 20), expand_x=True, expand_y=True)
+        listbox = sg.Listbox(items, size=(50, 20), expand_x=False, expand_y=True)
         rd_all = sg.Radio('all', 'list_filter', key=App.LIST_FILTER_ALL, default=True,
                           enable_events=True)
         rd_audio_only = sg.Radio('with audio only', 'list_filter', key=App.LIST_FILTER_AUDIO_ONLY,
                                  enable_events=True)
         rd_pdf_only = sg.Radio('with PDF only', 'list_filter', key=App.LIST_FILTER_PDF_ONLY,
                                enable_events=True)
-        console = sg.Multiline("", disabled=True, autoscroll=True, write_only=False, size=(50, 5), expand_x=True,
-                               expand_y=True)
+        console = sg.Multiline("", disabled=True, autoscroll=True, write_only=False, size=(50, 5),
+                               expand_x=False, expand_y=True)
         progress_bar = sg.ProgressBar(size=(50, 10), max_value=0)
-        btn_run = sg.Button('Run')
-        btn_pause = sg.Button('Pause', disabled=True)
-        btn_stop = sg.Button('Stop', disabled=True)
-        layout = [[sg.Text('Pickup any song/tune from the list')],
-                  [sg.Text('Filter:'), rd_all, rd_audio_only, rd_pdf_only],
-                  [listbox],
-                  [console],
-                  [progress_bar],
-                  [btn_run, btn_pause, btn_stop]]
-        window = sg.Window(f'Music Practice Helper v {__APP_VERSION__}', layout, resizable=True, scaling=True)
+        btn_run = sg.Button('Run', size=(10,1), auto_size_button=False)
+        btn_pause = sg.Button('Pause', disabled=True, size=(10,1), auto_size_button=False)
+        btn_stop = sg.Button('Stop', disabled=True, size=(10,1), auto_size_button=False)
+        frame1 = sg.Frame(title='', layout=[
+            [sg.Text('Pickup any song/tune from the list')],
+            [sg.Text('Filter:'), rd_all, rd_audio_only, rd_pdf_only],
+            [listbox],
+            [console],
+            [progress_bar],
+            [btn_run, btn_pause, btn_stop, sg.Push()]
+        ], border_width=0, pad=(0,0), vertical_alignment='top')
+
+        img_pdf = sg.Image(expand_x=True, expand_y=True)
+        frame2 = sg.Frame(title='', layout=[
+            [img_pdf]
+        ], expand_x=True, expand_y=True, border_width=0, pad=(0,0))
+
+        win_size = sg.Window.get_screen_size()
+        win_size = (win_size[0] - 10, win_size[1] - 70)
+        layout = [[frame1, frame2]]
+        window = sg.Window(f'Music Practice Helper v {__APP_VERSION__}', layout,
+                           location=(0,0), size=win_size,
+                           resizable=True, scaling=True,
+                           auto_size_buttons=False, no_titlebar=False, finalize=True)
+
         window.rd_all = rd_all
         window.rd_audio_only = rd_audio_only
         window.rd_pdf_only = rd_pdf_only
@@ -97,12 +114,38 @@ class App:
         window.btn_stop = btn_stop
         window.btn_pause = btn_pause
         window.progress_bar = progress_bar
+        window.img_pdf = img_pdf
+        window.frame1 = frame1
+        window.frame2 = frame2
         self.__main_window = window
         return window
 
+    def __show_pdf_page(self, pdf_doc, page_no):
+        img_pdf = self.__main_window.img_pdf
+        if page_no >= len(pdf_doc):
+            img_pdf.update(date=None)
+
+        PDF_DPI = 72
+        PDF_VIEW_MARGIN = 0.05
+        page = pdf_doc[page_no]
+        box = page.mediabox
+        pdf_x, pdf_y = box[2:4]
+        margin = PDF_VIEW_MARGIN * pdf_x
+        clip = (margin, margin, pdf_x-margin, pdf_y-margin)
+        pdf_view_height = pdf_y - 2 * margin
+
+        img_x, img_y = img_pdf.Widget.winfo_width(), img_pdf.Widget.winfo_height()
+
+        png = pdf_doc[page_no].get_pixmap(dpi=int(PDF_DPI * img_y / pdf_view_height), alpha=False, clip=clip)
+        img_pdf.update(data=png.tobytes())
+
+    def __load_pdf(self, file_path):
+        self.__pdf = fitz.open(file_path)
+        self.__show_pdf_page(self.__pdf, 0)
+
     def __run_doc(self, tool, doc_path):
-        process_info = subprocess.Popen([tool['path'], self.__documents.expand_path(doc_path)])
-        return process_info
+        expanded_path = self.__documents.expand_path(doc_path)
+        self.__load_pdf(expanded_path)
 
     def __run_process(self, code):
         self.__close_processes()
@@ -117,9 +160,7 @@ class App:
             tool = self.__documents.get_tools()['pdf']
             doc_path = document['pdf']
             self.__main_window.console.print('Opening PDF. Tool: {}, doc: {}'.format(tool, doc_path))
-            process_info = self.__run_doc(tool, doc_path)
-            self.__main_window.console.print('PID={}, poll={}'.format(process_info.pid, process_info.poll()))
-            self.__opened_processes.append(process_info)
+            self.__run_doc(tool, doc_path)
         else:
             self.__main_window.console.print('Cannot find PDF')
 
