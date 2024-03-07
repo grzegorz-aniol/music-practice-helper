@@ -41,7 +41,6 @@ class Documents:
         if self.documents is None:
             raise Exception(f'Cannot find database file {Documents.FILE_NAME}')
 
-        self.tools = self.documents['tools']
         self.paths = self.documents['paths']
 
     def get_entries(self):

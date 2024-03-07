@@ -1,14 +1,4 @@
 {
-  "tools": {
-    "audio": {
-      "path": "totem",
-      "parameters": ""
-    },
-    "pdf": {
-      "path": "evince",
-      "parameters": ""
-    }
-  },
   "paths": {
     "KARIN_BEGINNER": "/home/gangel/Documents/PRIV/Saxophone/KarinKroch-TheCompleteBeginnerSaxophoneCourse",
     "NIGEL_GETTING_STARTED": "/home/gangel/Documents/PRIV/Saxophone/SaxSchool/GettingStarted",
