@@ -87,13 +87,15 @@ class App:
         btn_stop = sg.Button('Stop', disabled=True, size=(10, 1), auto_size_button=False)
         btn_up = sg.Button('⬆️', key='Up', disabled=True, size=(5, 1), auto_size_button=False)
         btn_down = sg.Button('⬇️', key='Down', disabled=True, size=(5, 1), auto_size_button=False)
+        btn_zoom_in = sg.Button('➕', key='ZoomIn', disabled=True, size=(5, 1), auto_size_button=False)
+        btn_zoom_out = sg.Button('➖', key='ZoomOut', disabled=True, size=(5, 1), auto_size_button=False)
         frame1 = sg.Frame(title='', layout=[
             [sg.Text('Pickup any song/tune from the list')],
             [sg.Text('Filter:'), rd_all, rd_both, rd_audio_only, rd_pdf_only],
             [listbox],
             [console],
             [progress_bar],
-            [btn_run, btn_pause, btn_stop, sg.Push(), btn_up, btn_down]
+            [btn_run, btn_pause, btn_stop, sg.Push(), btn_zoom_in, btn_zoom_out,btn_up, btn_down]
         ], expand_x=True, expand_y=True, border_width=0, pad=(0, 0), vertical_alignment='top')
 
         img_pdf = sg.Image(expand_x=True, expand_y=True)
@@ -119,6 +121,8 @@ class App:
         window.btn_pause = btn_pause
         window.btn_up = btn_up
         window.btn_down = btn_down
+        window.btn_zoom_in = btn_zoom_in
+        window.btn_zoom_out = btn_zoom_out
         window.progress_bar = progress_bar
         window.img_pdf = img_pdf
         window.frame1 = frame1
@@ -185,6 +189,10 @@ class App:
                     self.__next_page()
                 elif event == 'Down' or event == 'Next:117':
                     self.__prev_page()
+                elif event == 'ZoomIn' or event == 'KP_Add:86':
+                    self.__zoom_in()
+                elif event == 'ZoomOut' or event == 'KP_Subtract:82':
+                    self.__zoom_out()
                 elif event == 'UPDATE_PROGRESS':
                     self.__update_progress()
                 elif event == App.LIST_FILTER_ALL:
@@ -265,6 +273,8 @@ class App:
         window.rd_pdf_only.update(disabled=self.__is_playing)
         window.btn_up.update(disabled=not self.__is_playing)
         window.btn_down.update(disabled=not self.__is_playing)
+        window.btn_zoom_in.update(disabled=not self.__is_playing)
+        window.btn_zoom_out.update(disabled=not self.__is_playing)
         window.refresh()
 
     def __filter_documents(self, audio=None, pdf=None):
@@ -294,4 +304,18 @@ class App:
         if not pdf:
             return
         pdf.next_page()
+        self.__show_pdf_page()
+
+    def __zoom_in(self):
+        pdf = self.__pdf
+        if not pdf:
+            return
+        pdf.zoom_in()
+        self.__show_pdf_page()
+
+    def __zoom_out(self):
+        pdf = self.__pdf
+        if not pdf:
+            return
+        pdf.zoom_out()
         self.__show_pdf_page()
