@@ -71,7 +71,7 @@ class App:
 
     def __build_main_window(self, items):
         sg.set_options(font=("Arial", 15))
-        listbox = sg.Listbox(items, size=(40, 20), expand_x=True, expand_y=True)
+        listbox = sg.Listbox(items, expand_x=True, expand_y=True)
         rd_all = sg.Radio('all', 'list_filter', key=App.LIST_FILTER_ALL, default=True,
                           enable_events=True)
         rd_audio_only = sg.Radio('audio only', 'list_filter', key=App.LIST_FILTER_AUDIO_ONLY,
@@ -79,9 +79,9 @@ class App:
         rd_pdf_only = sg.Radio('PDF only', 'list_filter', key=App.LIST_FILTER_PDF_ONLY,
                                enable_events=True)
         rd_both = sg.Radio('audio & PDF', 'list_filter', key=App.LIST_AUDIO_PDF, enable_events=True)
-        console = sg.Multiline("", disabled=True, autoscroll=True, write_only=False, size=(50, 5),
+        console = sg.Multiline("", disabled=True, autoscroll=True, write_only=False, size=(20, 5),
                                expand_x=True, expand_y=False)
-        progress_bar = sg.ProgressBar(size=(40, 20), expand_x=True, max_value=0)
+        progress_bar = sg.ProgressBar(size=(10,15), expand_x=True, max_value=0)
         btn_run = sg.Button('Run', size=(10, 1), auto_size_button=False)
         btn_pause = sg.Button('Pause', disabled=True, size=(10, 1), auto_size_button=False)
         btn_stop = sg.Button('Stop', disabled=True, size=(10, 1), auto_size_button=False)
@@ -89,23 +89,25 @@ class App:
         btn_down = sg.Button('⬇️', key='Down', disabled=True, size=(5, 1), auto_size_button=False)
         btn_zoom_in = sg.Button('➕', key='ZoomIn', disabled=True, size=(5, 1), auto_size_button=False)
         btn_zoom_out = sg.Button('➖', key='ZoomOut', disabled=True, size=(5, 1), auto_size_button=False)
-        frame1 = sg.Frame(title='', layout=[
+
+        win_size = sg.Window.get_screen_size()
+        win_size = (win_size[0] - 10, win_size[1] - 70)
+
+        column1 = sg.Column(layout=[
             [sg.Text('Pickup any song/tune from the list')],
             [sg.Text('Filter:'), rd_all, rd_both, rd_audio_only, rd_pdf_only],
             [listbox],
             [console],
             [progress_bar],
             [btn_run, btn_pause, btn_stop, sg.Push(), btn_zoom_in, btn_zoom_out,btn_up, btn_down]
-        ], expand_x=True, expand_y=True, border_width=0, pad=(0, 0), vertical_alignment='top')
+        ], expand_x=True, expand_y=True, pad=(0, 0), vertical_alignment='top')
 
-        img_pdf = sg.Image(expand_x=True, expand_y=True)
-        frame2 = sg.Frame(title='', layout=[
+        img_pdf = sg.Image(size=(int(win_size[0]*0.7), win_size[1]), expand_x=True, expand_y=True)
+        column2 = sg.Column(layout=[
             [img_pdf]
-        ], expand_x=True, expand_y=True, border_width=0, pad=(0, 0), size=(600, 10))
+        ], expand_x=True, expand_y=True, pad=(0, 0))
 
-        win_size = sg.Window.get_screen_size()
-        win_size = (win_size[0] - 10, win_size[1] - 70)
-        layout = [[frame1, frame2]]
+        layout = [[column1, column2]]
         window = sg.Window(f'Music Practice Helper v {__APP_VERSION__}', layout,
                            return_keyboard_events=True,
                            location=(0, 0), size=win_size,
@@ -115,6 +117,7 @@ class App:
         window.rd_all = rd_all
         window.rd_audio_only = rd_audio_only
         window.rd_pdf_only = rd_pdf_only
+        window.rd_both = rd_both
         window.listbox = listbox
         window.console = console
         window.btn_stop = btn_stop
@@ -125,8 +128,8 @@ class App:
         window.btn_zoom_out = btn_zoom_out
         window.progress_bar = progress_bar
         window.img_pdf = img_pdf
-        window.frame1 = frame1
-        window.frame2 = frame2
+        window.frame1 = column1
+        window.frame2 = column2
         self.__main_window = window
         return window
 
@@ -271,6 +274,7 @@ class App:
         window.rd_all.update(disabled=self.__is_playing)
         window.rd_audio_only.update(disabled=self.__is_playing)
         window.rd_pdf_only.update(disabled=self.__is_playing)
+        window.rd_both.update(disabled=self.__is_playing)
         window.btn_up.update(disabled=not self.__is_playing)
         window.btn_down.update(disabled=not self.__is_playing)
         window.btn_zoom_in.update(disabled=not self.__is_playing)
