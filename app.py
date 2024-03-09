@@ -5,7 +5,7 @@ import PySimpleGUI as sg
 from documents import Documents
 from pdf import PdfDocument
 
-__APP_VERSION__ = "1.1"
+__APP_VERSION__ = "1.2"
 
 from player import Player
 
@@ -63,7 +63,7 @@ class App:
         self.__ui_loop()
         self.__player.stop()
         self.__main_window.close()
-        self.__close_processes()
+        self.__stop_player()
 
     def __load_documents(self):
         self.__documents = Documents()
@@ -151,7 +151,7 @@ class App:
         self.__load_pdf(expanded_path)
 
     def __run_process(self, code):
-        self.__close_processes()
+        self.__stop_player()
         if code not in self.__documents.get_items().keys():
             print('Cannot find document')
             return
@@ -173,7 +173,7 @@ class App:
             self.__player.play(audio_path)
             self.__is_playing = True
 
-    def __close_processes(self):
+    def __stop_player(self):
         self.__player.stop()
         self.__is_playing = False
 
@@ -223,13 +223,13 @@ class App:
         self.__progress_thread = None
         window = self.__main_window
         console = window.console
-        console.Update('Stopping...\n')
-        window.refresh()
-        self.__close_processes()
+        self.__stop_player()
         self.__is_playing = False
-        console.print('Done.\n')
+        console.print('Finished\n')
         window.progress_bar.update(0)
+        self.__main_window.img_pdf.update(data=None)
         self.__update_ui_states()
+        window.refresh()
 
     def __pause_item(self):
         window = self.__main_window
