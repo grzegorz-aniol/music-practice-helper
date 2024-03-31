@@ -1,15 +1,33 @@
 # Music Practice Helper
 
 The application helps to practice playing an instrument.
-It allows to run audio backtracks and open PDF documents with notes.
+It allows to run audio backtracks and open associated PDF documents with notes.
 
-## JSON
-File locations are defined in json file named `documents.json`. The app search for it in the following order:
+![Screenshot #1](./screen-1.png)
+
+![Screenshot #2](./screen-2.png)
+
+## Database
+
+File locations are configured in json file `documents.json`. The app search for the file in the following order:
 * current working directory
 * `$HOME/.music-practise/` (hidden sub-folder in you home folder)
 
 Take a look into `./documents-example.json` to see the expected syntax of the file.  
 
-## Demo
+## Functionality
 
-[![Demo1](https://img.youtube.com/vi/dRqd0R7KE38/0.jpg)](https://www.youtube.com/watch?v=dRqd0R7KE38)
+Filtering the content by:
+* Audio with associated PDF documents
+* Audio only
+* PDF only
+
+Playing control:
+* Play
+* Pause
+* Stop
+* Progress bar
+
+PDF viewer:
+* Next, prev page (PgDn/PgUp)
+* Zoom in/out (+/-)
