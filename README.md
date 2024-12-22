@@ -22,6 +22,10 @@ Filtering the content by:
 * Audio only
 * PDF only
 
+Tags:
+* alto sax
+* tenor sax
+
 Playing control:
 * Play
 * Pause

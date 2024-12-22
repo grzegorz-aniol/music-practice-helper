@@ -7,47 +7,87 @@
   "items": {
     "10rhythms": {
       "name": "10 rhythms practice",
-      "pdf": "KARIN_BEGINNER/10+Rhythm+Exercises.pdf"
+      "pdf": "KARIN_BEGINNER/10+Rhythm+Exercises.pdf",
+      "tags": []
     },
     "workout5min": {
       "name": "5 minutes workout",
       "pdf": "NIGEL_GETTING_STARTED/5-min-workout/Nigels_5min_Warmup_Workout_-_Alto_Sax.pdf",
-      "audio": "NIGEL_GETTING_STARTED/5-min-workout/5_Minute_Warmup_Workout_Practice_Track.mp3"
+      "audio": "NIGEL_GETTING_STARTED/5-min-workout/5_Minute_Warmup_Workout_Practice_Track.mp3",
+      "tags": [
+        "alto"
+      ]
     },
     "risingsun": {
       "name": "HouseOfTheRisingSun",
       "audio": "KARIN_BEGINNER/HouseOfTheRisingSun/House+of+the+Rising+Sun+Backtrack+(without+click).mp3",
-      "pdf": "KARIN_BEGINNER/HouseOfTheRisingSun/House+of+the+Rising+Sun+-+Alto+Saxophone.pdf"
+      "pdf": "KARIN_BEGINNER/HouseOfTheRisingSun/House+of+the+Rising+Sun+-+Alto+Saxophone.pdf",
+      "tags": [
+        "alto"
+      ]
+    },
+    "cheek2cheek-tenor+5": {
+      "name": "Sinatra - Cheek to Cheek +5 (tenor)",
+      "audio": "AUDIO_TRACKS/Frank Sinatra - Cheek to Cheek F +5 semitones.mp3",
+      "tags": [
+        "tenor"
+      ]
+    },
+    "ipanema-tenor": {
+      "name": "Girl From Ipanema (tenor) Gmaj",
+      "audio": "AUDIO_TRACKS/Jazz Standards - Girl From Ipanema (minus).mp3",
+      "pdf": "AUDIO_TRACKS/Girl from Ipanema - Tenor Sax - Gmaj.pdf",
+      "tags": [
+        "tenor"
+      ]
     },
     "grooveit": {
       "name": "GrooveIt!",
       "audio": "KARIN_BEGINNER/GrooveIt/Groove+It!+Backtrack+(without+click).mp3",
-      "pdf": "KARIN_BEGINNER/GrooveIt/Groove+It!+-+Alto+Saxophone.pdf"
+      "pdf": "KARIN_BEGINNER/GrooveIt/Groove+It!+-+Alto+Saxophone.pdf",
+      "tags": [
+        "alto"
+      ]
     },
     "baker": {
       "name": "Baker Avenue",
       "pdf": "NIGEL_GETTING_STARTED/Baker_Avenue_-_All_Saxes.pdf",
-      "audio": "NIGEL_GETTING_STARTED/Baker_Avenue_Practice_Track.mp3"
+      "audio": "NIGEL_GETTING_STARTED/Baker_Avenue_Practice_Track.mp3",
+      "tags": [
+        "alto"
+      ]
     },
     "freeloader": {
       "name": "Freddie Freeloader",
       "pdf": "NIGEL_GETTING_STARTED/Freddie_Freeloader_-_All_Saxes.pdf",
-      "audio": "NIGEL_GETTING_STARTED/Freddie_Freeloader_Practice_Track.mp3"
+      "audio": "NIGEL_GETTING_STARTED/Freddie_Freeloader_Practice_Track.mp3",
+      "tags": [
+        "alto"
+      ]
     },
     "sentimental": {
       "name": "Sentimental Journey",
       "pdf": "NIGEL_GETTING_STARTED/Sentimental_Journey_-_Alto_Sax.pdf",
-      "audio": "NIGEL_GETTING_STARTED/Sentimental_Journey_Practice_Track_with_Lead_Parts.mp3"
+      "audio": "NIGEL_GETTING_STARTED/Sentimental_Journey_Practice_Track_with_Lead_Parts.mp3",
+      "tags": [
+        "alto"
+      ]
     },
     "swingin": {
       "name": "Swingin' Easy",
       "pdf": "NIGEL_GETTING_STARTED/Swingin_Easy_-_Essential_Quick_Start_-_Alto_Sax.pdf",
-      "audio": "NIGEL_GETTING_STARTED/Swingin_Easy_Backing_Track.mp3"
+      "audio": "NIGEL_GETTING_STARTED/Swingin_Easy_Backing_Track.mp3",
+      "tags": [
+        "alto"
+      ]
     },
     "sweet": {
       "name": "Swing Log Sweet Chariot",
       "pdf": "NIGEL_GETTING_STARTED/Swing_Low_Sweet_Chariot_-_Alto_Saxophone.pdf",
-      "audio": "NIGEL_GETTING_STARTED/Swing_Low_Sweet_Chariot_Backing_Track.mp3"
+      "audio": "NIGEL_GETTING_STARTED/Swing_Low_Sweet_Chariot_Backing_Track.mp3",
+      "tags": [
+        "alto"
+      ]
     },
     "easyonmy": {
       "name": "Easy on Me",
@@ -63,7 +103,7 @@
     },
     "myheart": {
       "name": "My Heart Will Go on",
-      "audio": "AUDIO_TRACKS/Céline Dion - My Heart Will Go on (minus) -1 semitone.mp3"
+      "audio": "AUDIO_TRACKS/C\u00e9line Dion - My Heart Will Go on (minus) -1 semitone.mp3"
     },
     "lady": {
       "name": "Lady In Red",
@@ -86,8 +126,10 @@
       "audio": "AUDIO_TRACKS/Jazz Standards - Girl From Ipanema (minus) +3 semitones.mp3"
     },
     "ipanema-3": {
-      "name": "Girl From Ipanema -3",
-      "audio": "AUDIO_TRACKS/Jazz Standards - Girl From Ipanema (minus) -3 semitones.mp3"
+      "name": "Girl From Ipanema -3 test23",
+      "pdf": "",
+      "audio": "AUDIO_TRACKS/Jazz Standards - Girl From Ipanema (minus) -3 semitones.mp3",
+      "tags": []
     },
     "hallelujah": {
       "name": "Hallelujah",
@@ -124,6 +166,20 @@
     "withor": {
       "name": "With Or Without You",
       "audio": "AUDIO_TRACKS/U2 - With Or Without You (minus 2) +3 semitones.mp3"
+    },
+    "test": {
+      "name": "Test23",
+      "pdf": "/home/gangel/Documents/PRIV/Saxophone/melodicminor.pdf",
+      "audio": "/home/gangel/Documents/PRIV/Saxophone/Matt Bianco - Ordinary Day (minus 2) -2 semitones.mp3",
+      "tags": [
+        "Alto"
+      ]
+    },
+    "": {
+      "name": "",
+      "pdf": "",
+      "audio": "",
+      "tags": []
     }
   }
 }

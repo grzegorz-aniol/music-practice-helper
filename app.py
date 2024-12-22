@@ -2,12 +2,15 @@ from time import sleep
 
 import PySimpleGUI as sg
 
-from documents import Documents
-from pdf import PdfDocument
+# from documents import Documents
+# from pdf import PdfDocument
 
-__APP_VERSION__ = "1.2"
+__APP_VERSION__ = "1.3"
 
 from player import Player
+from documents import Documents
+from entry_editor import EntryEditor
+from pdf import PdfDocument
 
 
 class ThreadUpdater:
@@ -39,6 +42,9 @@ class App:
     Main application
     """
 
+    LIST_ANY = "TAG_ANY"
+    LIST_ALTO = "TAG_ALTO"
+    LIST_TENOR = "TAG_TENOR"
     AUDIO_WAIT = 3
     LIST_FILTER_ALL = 'list_filter_all'
     LIST_FILTER_AUDIO_ONLY = 'list_filter_audio_only'
@@ -70,7 +76,8 @@ class App:
         self.__documents.load()
 
     def __build_main_window(self, items):
-        sg.set_options(font=("Arial", 15))
+        # sg.theme("Default 1")
+        sg.set_options(font='Arial 14')
         listbox = sg.Listbox(items, expand_x=True, expand_y=True)
         rd_all = sg.Radio('all', 'list_filter', key=App.LIST_FILTER_ALL, default=True,
                           enable_events=True)
@@ -79,6 +86,9 @@ class App:
         rd_pdf_only = sg.Radio('PDF only', 'list_filter', key=App.LIST_FILTER_PDF_ONLY,
                                enable_events=True)
         rd_both = sg.Radio('audio & PDF', 'list_filter', key=App.LIST_AUDIO_PDF, enable_events=True)
+        rd_any_tag = sg.Radio('Any', 'tag_filter', key=App.LIST_ANY, default=True, enable_events=True)
+        rd_alto = sg.Radio('Alto', 'tag_filter', key=App.LIST_ALTO, enable_events=True)
+        rd_tenor = sg.Radio('Tenor', 'tag_filter', key=App.LIST_TENOR, enable_events=True)
         console = sg.Multiline("", disabled=True, autoscroll=True, write_only=False, size=(20, 5),
                                expand_x=True, expand_y=False)
         progress_bar = sg.ProgressBar(size=(10,15), expand_x=True, max_value=0)
@@ -89,6 +99,9 @@ class App:
         btn_down = sg.Button('⬇️', key='Down', disabled=True, size=(5, 1), auto_size_button=False)
         btn_zoom_in = sg.Button('➕', key='ZoomIn', disabled=True, size=(5, 1), auto_size_button=False)
         btn_zoom_out = sg.Button('➖', key='ZoomOut', disabled=True, size=(5, 1), auto_size_button=False)
+        btn_edit = sg.Button('Edit', size=(10, 1), auto_size_button=False)
+        btn_add_new = sg.Button('Add', size=(10, 1), auto_size_button=False)
+
 
         win_size = sg.Window.get_screen_size()
         win_size = (win_size[0] - 10, win_size[1] - 70)
@@ -96,10 +109,12 @@ class App:
         column1 = sg.Column(layout=[
             [sg.Text('Pickup any song/tune from the list')],
             [sg.Text('Filter:'), rd_all, rd_both, rd_audio_only, rd_pdf_only],
+            [sg.Text('Tags:'), rd_any_tag, rd_alto, rd_tenor],
+            [btn_add_new, btn_edit],
             [listbox],
             [console],
             [progress_bar],
-            [btn_run, btn_pause, btn_stop, sg.Push(), btn_zoom_in, btn_zoom_out,btn_up, btn_down]
+            [btn_run, btn_pause, btn_stop, sg.Push(), btn_zoom_in, btn_zoom_out, btn_up, btn_down]
         ], expand_x=True, expand_y=True, pad=(0, 0), vertical_alignment='top')
 
         img_pdf = sg.Image(size=(int(win_size[0]*0.7), win_size[1]), expand_x=True, expand_y=True)
@@ -118,6 +133,9 @@ class App:
         window.rd_audio_only = rd_audio_only
         window.rd_pdf_only = rd_pdf_only
         window.rd_both = rd_both
+        window.rd_any = rd_any_tag
+        window.rd_alto = rd_alto
+        window.rd_tenor = rd_tenor
         window.listbox = listbox
         window.console = console
         window.btn_stop = btn_stop
@@ -126,11 +144,15 @@ class App:
         window.btn_down = btn_down
         window.btn_zoom_in = btn_zoom_in
         window.btn_zoom_out = btn_zoom_out
+        window.btn_edit = btn_edit
+        window.btn_add_new = btn_add_new
         window.progress_bar = progress_bar
         window.img_pdf = img_pdf
         window.frame1 = column1
         window.frame2 = column2
         self.__main_window = window
+
+
         return window
 
     def __show_pdf_page(self):
@@ -201,11 +223,21 @@ class App:
                 elif event == App.LIST_FILTER_ALL:
                     self.__filter_documents()
                 elif event == App.LIST_FILTER_AUDIO_ONLY:
-                    self.__filter_documents(audio=True, pdf=False)
+                    self.__filter_documents()
                 elif event == App.LIST_FILTER_PDF_ONLY:
-                    self.__filter_documents(audio=False, pdf=True)
+                    self.__filter_documents()
                 elif event == App.LIST_AUDIO_PDF:
-                    self.__filter_documents(audio=True, pdf=True)
+                    self.__filter_documents()
+                elif event == App.LIST_ANY:
+                    self.__filter_documents()
+                elif event == App.LIST_ALTO:
+                    self.__filter_documents()
+                elif event == App.LIST_TENOR:
+                    self.__filter_documents()
+                elif event == 'Edit':
+                    self.__edit_entry()
+                elif event == 'Add':
+                    self.__add_entry()
                 elif event == sg.WIN_CLOSED:
                     break
             except Exception as ex:
@@ -279,13 +311,36 @@ class App:
         window.btn_down.update(disabled=not self.__is_playing)
         window.btn_zoom_in.update(disabled=not self.__is_playing)
         window.btn_zoom_out.update(disabled=not self.__is_playing)
+        window.btn_edit.update(disabled=self.__is_playing)
         window.refresh()
 
-    def __filter_documents(self, audio=None, pdf=None):
-        listbox = self.__main_window.listbox
+    def __filter_documents(self):
+        window = self.__main_window
+        tags = []
+        audio = None
+        pdf = None
+        if window.rd_alto.get():
+            tags.append('alto')
+        if window.rd_tenor.get():
+            tags.append('tenor')
+
+        if window.rd_audio_only.get():
+            audio=True
+            pdf=False
+        elif window.rd_pdf_only.get():
+            audio=False
+            pdf=True
+        elif window.rd_both.get():
+            audio=True
+            pdf=True
+
+        listbox = window.listbox
         items = self.__documents.get_entries()
         result_items = []
         for item in items:
+            if tags is not None and len(tags) > 0:
+                if not any(tag in item.tags for tag in tags):
+                    continue
             if audio is not None:
                 if audio != item.is_audio:
                     continue
@@ -323,3 +378,29 @@ class App:
             return
         pdf.zoom_out()
         self.__show_pdf_page()
+
+
+    def __add_entry(self):
+        edit_window = EntryEditor()
+        result = edit_window.add_new_entry()
+        if result is not None:
+            code, entry = result
+            self.__documents.update_entry(code, entry)
+            self.__main_window.listbox.update(self.__documents.get_entries())
+
+
+    def __edit_entry(self):
+        selected = self.__main_window.listbox.get()
+        if selected is None or len(selected) == 0:
+            sg.popup('Nothing is selected in the list')
+            return
+        code = selected[0].code
+        if code not in self.__documents.get_items().keys():
+            print('Cannot find document')
+            return
+        entry = self.__documents.get_items()[code]
+        edit_window = EntryEditor()
+        result = edit_window.edit_entry(code, entry)
+        if result is not None:
+            self.__documents.update_entry(code, result[1])
+            self.__main_window.listbox.update(self.__documents.get_entries())
