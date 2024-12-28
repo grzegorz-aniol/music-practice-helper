@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "music_practice_helper"
+version = "1.3"
+description = "A music practice helper application"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache Software License"}
+authors = [
+  {name = "Grzegorz Anioł", email = "grzegorz.aniol@example.com"}
+]
+dependencies = [
+  "PySimpleGUI",
+  "PyMuPDF"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/grzegorz-aniol/music-practice-helper"
+
+[tool.poetry.scripts]
+music_practice_helper = "music_practice_helper.app:main"
+packages = [{include = "music_practice_helper", from = "src"}]

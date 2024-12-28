@@ -5,12 +5,11 @@ import PySimpleGUI as sg
 # from documents import Documents
 # from pdf import PdfDocument
 
-__APP_VERSION__ = "1.3"
-
-from player import Player
-from documents import Documents
-from entry_editor import EntryEditor
-from pdf import PdfDocument
+from .player import Player
+from .documents import Documents
+from .entry_editor import EntryEditor
+from .pdf import PdfDocument
+from . import __version__
 
 
 class ThreadUpdater:
@@ -37,7 +36,7 @@ class ThreadUpdater:
         self.started = False
 
 
-class App:
+class Application:
     """
     Main application
     """
@@ -79,16 +78,16 @@ class App:
         # sg.theme("Default 1")
         sg.set_options(font='Arial 14')
         listbox = sg.Listbox(items, expand_x=True, expand_y=True)
-        rd_all = sg.Radio('all', 'list_filter', key=App.LIST_FILTER_ALL, default=True,
+        rd_all = sg.Radio('all', 'list_filter', key=Application.LIST_FILTER_ALL, default=True,
                           enable_events=True)
-        rd_audio_only = sg.Radio('audio only', 'list_filter', key=App.LIST_FILTER_AUDIO_ONLY,
+        rd_audio_only = sg.Radio('audio only', 'list_filter', key=Application.LIST_FILTER_AUDIO_ONLY,
                                  enable_events=True)
-        rd_pdf_only = sg.Radio('PDF only', 'list_filter', key=App.LIST_FILTER_PDF_ONLY,
+        rd_pdf_only = sg.Radio('PDF only', 'list_filter', key=Application.LIST_FILTER_PDF_ONLY,
                                enable_events=True)
-        rd_both = sg.Radio('audio & PDF', 'list_filter', key=App.LIST_AUDIO_PDF, enable_events=True)
-        rd_any_tag = sg.Radio('Any', 'tag_filter', key=App.LIST_ANY, default=True, enable_events=True)
-        rd_alto = sg.Radio('Alto', 'tag_filter', key=App.LIST_ALTO, enable_events=True)
-        rd_tenor = sg.Radio('Tenor', 'tag_filter', key=App.LIST_TENOR, enable_events=True)
+        rd_both = sg.Radio('audio & PDF', 'list_filter', key=Application.LIST_AUDIO_PDF, enable_events=True)
+        rd_any_tag = sg.Radio('Any', 'tag_filter', key=Application.LIST_ANY, default=True, enable_events=True)
+        rd_alto = sg.Radio('Alto', 'tag_filter', key=Application.LIST_ALTO, enable_events=True)
+        rd_tenor = sg.Radio('Tenor', 'tag_filter', key=Application.LIST_TENOR, enable_events=True)
         console = sg.Multiline("", disabled=True, autoscroll=True, write_only=False, size=(20, 5),
                                expand_x=True, expand_y=False)
         progress_bar = sg.ProgressBar(size=(10,15), expand_x=True, max_value=0)
@@ -123,7 +122,7 @@ class App:
         ], expand_x=True, expand_y=True, pad=(0, 0))
 
         layout = [[column1, column2]]
-        window = sg.Window(f'Music Practice Helper v {__APP_VERSION__}', layout,
+        window = sg.Window(f'Music Practice Helper v {__version__}', layout,
                            return_keyboard_events=True,
                            location=(0, 0), size=win_size,
                            resizable=True, scaling=True,
@@ -179,17 +178,15 @@ class App:
             return
         document = self.__documents.get_items()[code]
 
-        if 'pdf' in document.keys():
+        if 'pdf' in document.keys() and len(document['pdf'])>0:
             doc_path = document['pdf']
             self.__main_window.console.print('Opening PDF: {}'.format(doc_path))
             self.__run_doc(doc_path)
-        else:
-            self.__main_window.console.print('Cannot find PDF')
 
-        if 'audio' in document.keys():
-            self.__main_window.console.print('Preparation wait ({} seconds)...'.format(App.AUDIO_WAIT))
+        if 'audio' in document.keys() and len(document['audio'])>0:
+            self.__main_window.console.print('Preparation wait ({} seconds)...'.format(Application.AUDIO_WAIT))
             self.__main_window.refresh()
-            sleep(App.AUDIO_WAIT)
+            sleep(Application.AUDIO_WAIT)
             audio_path = self.__documents.expand_path(document['audio'])
             self.__player.stop()
             self.__player.play(audio_path)
@@ -220,19 +217,19 @@ class App:
                     self.__zoom_out()
                 elif event == 'UPDATE_PROGRESS':
                     self.__update_progress()
-                elif event == App.LIST_FILTER_ALL:
+                elif event == Application.LIST_FILTER_ALL:
                     self.__filter_documents()
-                elif event == App.LIST_FILTER_AUDIO_ONLY:
+                elif event == Application.LIST_FILTER_AUDIO_ONLY:
                     self.__filter_documents()
-                elif event == App.LIST_FILTER_PDF_ONLY:
+                elif event == Application.LIST_FILTER_PDF_ONLY:
                     self.__filter_documents()
-                elif event == App.LIST_AUDIO_PDF:
+                elif event == Application.LIST_AUDIO_PDF:
                     self.__filter_documents()
-                elif event == App.LIST_ANY:
+                elif event == Application.LIST_ANY:
                     self.__filter_documents()
-                elif event == App.LIST_ALTO:
+                elif event == Application.LIST_ALTO:
                     self.__filter_documents()
-                elif event == App.LIST_TENOR:
+                elif event == Application.LIST_TENOR:
                     self.__filter_documents()
                 elif event == 'Edit':
                     self.__edit_entry()
@@ -300,6 +297,8 @@ class App:
             sg.popup(f'Error {ex}')
 
     def __update_ui_states(self):
+        selected = self.__main_window.listbox.get()
+        is_selected = (selected and len(selected) == 0)
         window = self.__main_window
         window.btn_stop.update(disabled=not self.__is_playing)
         window.btn_pause.update(disabled=not self.__is_playing)
@@ -311,7 +310,8 @@ class App:
         window.btn_down.update(disabled=not self.__is_playing)
         window.btn_zoom_in.update(disabled=not self.__is_playing)
         window.btn_zoom_out.update(disabled=not self.__is_playing)
-        window.btn_edit.update(disabled=self.__is_playing)
+        window.btn_edit.update(disabled=self.__is_playing or not is_selected)
+        window.btn_add_new.update(disabled=self.__is_playing)
         window.refresh()
 
     def __filter_documents(self):
@@ -339,7 +339,7 @@ class App:
         result_items = []
         for item in items:
             if tags is not None and len(tags) > 0:
-                if not any(tag in item.tags for tag in tags):
+                if not any(tag.lower() in item.tags for tag in tags):
                     continue
             if audio is not None:
                 if audio != item.is_audio:

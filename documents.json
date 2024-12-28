@@ -8,7 +8,10 @@
     "10rhythms": {
       "name": "10 rhythms practice",
       "pdf": "KARIN_BEGINNER/10+Rhythm+Exercises.pdf",
-      "tags": []
+      "audio": "",
+      "tags": [
+        "alto"
+      ]
     },
     "workout5min": {
       "name": "5 minutes workout",
@@ -180,6 +183,15 @@
       "pdf": "",
       "audio": "",
       "tags": []
+    },
+    "powrotna_bossa_nova": {
+      "name": "powrotna bossa nova",
+      "pdf": "",
+      "audio": "/home/gangel/Documents/PRIV/Saxophone/Powrotna Bossa Nova - backtrack.mp3",
+      "tags": [
+        "alto",
+        "tenor"
+      ]
     }
   }
 }

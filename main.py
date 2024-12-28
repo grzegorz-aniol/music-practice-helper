@@ -1,8 +1,8 @@
-from app import App
+from src.app.application import Application
 
 """
 Main module to run the application 
 """
 if __name__ == '__main__':
-    app = App()
+    app = Application()
     app.run()

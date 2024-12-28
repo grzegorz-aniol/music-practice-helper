@@ -4,7 +4,7 @@ import math
 
 class Player:
     """
-    Simple facade for pygame mixer, defiining functionality for playing an audio file
+    Simple facade for pygame mixer, defining functionality for playing an audio file
     """
 
     def __init__(self):

@@ -15,7 +15,7 @@ class EntryEditor:
     def __init__(self):
         sg.set_options(font='Arial 14')
         self.pdf_browser = sg.FileBrowse(file_types=(("PDF Files", "*.pdf"),), initial_folder=EntryEditor.initial_folder)
-        self.audio_browser = sg.FileBrowse(file_types=(("Audio Files", "*.mp3"),), initial_folder=EntryEditor.initial_folder)
+        self.audio_browser = sg.FileBrowse(file_types=(("Mp3 Files", "*.mp3"),), initial_folder=EntryEditor.initial_folder)
         self.layout = [
             [sg.Text('Name'), sg.InputText('', key=EntryEditor.field_name)],
             [sg.Text('PDF'), sg.InputText('', key=EntryEditor.field_pdf), self.pdf_browser],
@@ -39,7 +39,7 @@ class EntryEditor:
                 'name': values[EntryEditor.field_name],
                 'pdf': values[EntryEditor.field_pdf] or '',
                 'audio': values[EntryEditor.field_audio] or '',
-                'tags': [tag.strip() for tag in tags]
+                'tags': [tag.lower().strip() for tag in tags]
             }
             EntryEditor.initial_folder = os.path.dirname(
                 values[EntryEditor.field_pdf] or values[EntryEditor.field_audio])
@@ -53,8 +53,8 @@ class EntryEditor:
         window[EntryEditor.field_pdf].update(value=entry_value['pdf'] if 'pdf' in entry_value else '')
         window[EntryEditor.field_audio].update(value=entry_value['audio'] if 'audio' in entry_value else '')
         if 'tags' in entry_value:
-            window[EntryEditor.field_alto].update(value='Alto' in entry_value['tags'])
-            window[EntryEditor.field_tenor].update(value='Tenor' in entry_value['tags'])
+            window[EntryEditor.field_alto].update(value='alto' in entry_value['tags'])
+            window[EntryEditor.field_tenor].update(value='tenor' in entry_value['tags'])
         window.refresh()
         event, values = window.read()
         if event == 'Save':
@@ -68,7 +68,7 @@ class EntryEditor:
                 'name': values[EntryEditor.field_name],
                 'pdf': values[EntryEditor.field_pdf] or '',
                 'audio': values[EntryEditor.field_audio] or '',
-                'tags': [tag.strip() for tag in tags]
+                'tags': [tag.lower().strip() for tag in tags]
             }
             EntryEditor.initial_folder = os.path.dirname(
                 values[EntryEditor.field_pdf] or values[EntryEditor.field_audio])
