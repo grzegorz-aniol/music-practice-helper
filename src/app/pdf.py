@@ -9,13 +9,20 @@ class PdfDocument:
         self.__page_num = 0
         self.__margin = PdfDocument.DEF_PDF_VIEW_MARGIN
 
-    def next_page(self):
-        if self.__page_num + 1 < len(self.__pdf):
-            self.__page_num += 1
+    def __len__(self):
+        return self.__pdf.page_count
 
-    def prev_page(self):
-        if self.__page_num - 1 >= 0:
-            self.__page_num -= 1
+    def current_page_num(self):
+        return self.__page_num
+
+    def next_page(self, step=1):
+        self.__page_num = min(self.__page_num + step, self.__pdf.page_count - step)
+
+    def prev_page(self, step=1):
+        self.__page_num = max(self.__page_num - step, 0)
+
+    def go_to_page(self, page_num, step=1):
+        self.__page_num = min(max(page_num, 0), self.__pdf.page_count - step)
 
     def zoom_in(self):
         self.__margin = min(0.2, self.__margin + 0.01)
@@ -23,11 +30,11 @@ class PdfDocument:
     def zoom_out(self):
         self.__margin = max(0.0, self.__margin - 0.01)
 
-    def get_pdf_page(self, view_size_px):
-        if self.__page_num not in range(len(self.__pdf)):
+    def get_pdf_page(self, view_size_px, page_offset=0):
+        if self.__page_num + page_offset not in range(self.__pdf.page_count):
             return None
 
-        page = self.__pdf[self.__page_num]
+        page = self.__pdf[self.__page_num + page_offset]
         box = page.mediabox
         pdf_x, pdf_y = box[2:4]
         margin = self.__margin * pdf_x

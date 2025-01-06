@@ -31,5 +31,5 @@ Playing control:
 * Progress bar
 
 PDF viewer:
-* Next, prev page (PgDn/PgUp)
-* Zoom in/out (+/-)
+* Next, prev page (`PgDn`/`PgUp` or `+`/`-`)
+* Zoom in/out (`*` / `/`)

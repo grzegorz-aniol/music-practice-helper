@@ -10,6 +10,7 @@ class EntryEditor:
     field_audio = "FIELD_AUDIO"
     field_alto = "FIELD_ALTO"
     field_tenor = "FIELD_TENOR"
+    field_page_num = "FIELD_PAGE_NUM"
     initial_folder = getcwd()
 
     def __init__(self):
@@ -21,6 +22,7 @@ class EntryEditor:
             [sg.Text('PDF'), sg.InputText('', key=EntryEditor.field_pdf), self.pdf_browser],
             [sg.Text('Audio'), sg.InputText('', key=EntryEditor.field_audio), self.audio_browser],
             [sg.Text('Tags'), sg.Checkbox('Alto', key=EntryEditor.field_alto), sg.Checkbox('Tenor', key=EntryEditor.field_tenor)],
+            [sg.Text('Start page #'), sg.InputText('', key=EntryEditor.field_page_num)],
             [sg.Button('Save'), sg.Button('Cancel')]
         ]
 
@@ -41,6 +43,11 @@ class EntryEditor:
                 'audio': values[EntryEditor.field_audio] or '',
                 'tags': [tag.lower().strip() for tag in tags]
             }
+            page_num = max(int(values[EntryEditor.field_page_num]) - 1, 0)
+            if page_num > 0:
+                new_entry['page_num'] = page_num
+            else:
+                new_entry.pop('page_num', None)
             EntryEditor.initial_folder = os.path.dirname(
                 values[EntryEditor.field_pdf] or values[EntryEditor.field_audio])
             window.close()
@@ -55,6 +62,7 @@ class EntryEditor:
         if 'tags' in entry_value:
             window[EntryEditor.field_alto].update(value='alto' in entry_value['tags'])
             window[EntryEditor.field_tenor].update(value='tenor' in entry_value['tags'])
+        window[EntryEditor.field_page_num].update(value=str(entry_value['page_num']+1) if 'page_num' in entry_value else '')
         window.refresh()
         event, values = window.read()
         if event == 'Save':
@@ -70,6 +78,11 @@ class EntryEditor:
                 'audio': values[EntryEditor.field_audio] or '',
                 'tags': [tag.lower().strip() for tag in tags]
             }
+            page_num = max(int(values[EntryEditor.field_page_num]) - 1, 0)
+            if page_num > 0:
+                entry_value['page_num'] = page_num
+            else:
+                entry_value.pop('page_num', None)
             EntryEditor.initial_folder = os.path.dirname(
                 values[EntryEditor.field_pdf] or values[EntryEditor.field_audio])
             window.close()
@@ -79,3 +92,9 @@ class EntryEditor:
     def _validate(self, values):
         if len(values[EntryEditor.field_name]) == 0:
             raise Exception('Name is required')
+        if len(values[EntryEditor.field_page_num]) > 0:
+            if not values[EntryEditor.field_page_num].isdigit():
+                raise Exception('Page number must be a number')
+            num = int(values[EntryEditor.field_page_num])
+            if num < 1:
+                raise Exception('Page number must be positive')

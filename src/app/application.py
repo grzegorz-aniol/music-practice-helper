@@ -2,14 +2,11 @@ from time import sleep
 
 import PySimpleGUI as sg
 
-# from documents import Documents
-# from pdf import PdfDocument
-
-from .player import Player
+from . import __version__
 from .documents import Documents
 from .entry_editor import EntryEditor
 from .pdf import PdfDocument
-from . import __version__
+from .player import Player
 
 
 class ThreadUpdater:
@@ -103,9 +100,9 @@ class Application:
 
 
         win_size = sg.Window.get_screen_size()
-        win_size = (win_size[0] - 10, win_size[1] - 70)
+        win_size = (win_size[0] - 30, win_size[1] - 70)
 
-        column1 = sg.Column(layout=[
+        controls_column = sg.Column(layout=[
             [sg.Text('Pickup any song/tune from the list')],
             [sg.Text('Filter:'), rd_all, rd_both, rd_audio_only, rd_pdf_only],
             [sg.Text('Tags:'), rd_any_tag, rd_alto, rd_tenor],
@@ -116,12 +113,14 @@ class Application:
             [btn_run, btn_pause, btn_stop, sg.Push(), btn_zoom_in, btn_zoom_out, btn_up, btn_down]
         ], expand_x=True, expand_y=True, pad=(0, 0), vertical_alignment='top')
 
-        img_pdf = sg.Image(size=(int(win_size[0]*0.7), win_size[1]), expand_x=True, expand_y=True)
-        column2 = sg.Column(layout=[
-            [img_pdf]
+        pdf_width = int(0.3 * win_size[0])
+        img_pdf1 = sg.Image(size=(pdf_width, win_size[1]), expand_x=True, expand_y=True)
+        img_pdf2 = sg.Image(size=(pdf_width, win_size[1]), expand_x=True, expand_y=True)
+        pdfs_column = sg.Column(layout=[
+            [img_pdf1, img_pdf2]
         ], expand_x=True, expand_y=True, pad=(0, 0))
 
-        layout = [[column1, column2]]
+        layout = [[controls_column, sg.Push(), pdfs_column]]
         window = sg.Window(f'Music Practice Helper v {__version__}', layout,
                            return_keyboard_events=True,
                            location=(0, 0), size=win_size,
@@ -146,30 +145,46 @@ class Application:
         window.btn_edit = btn_edit
         window.btn_add_new = btn_add_new
         window.progress_bar = progress_bar
-        window.img_pdf = img_pdf
-        window.frame1 = column1
-        window.frame2 = column2
+        window.img_pdf1 = img_pdf1
+        window.img_pdf2 = img_pdf2
+        window.frame1 = controls_column
+        window.frame2 = pdfs_column
         self.__main_window = window
 
 
         return window
 
-    def __show_pdf_page(self):
+    def __show_pdf_pages(self):
         pdf = self.__pdf
         if pdf is None:
             return
-        img_pdf = self.__main_window.img_pdf
-        img_x, img_y = img_pdf.Widget.winfo_width(), img_pdf.Widget.winfo_height()
+        img_pdf1 = self.__main_window.img_pdf1
+        img_pdf2 = self.__main_window.img_pdf2
+        win_width, win_height = self.__main_window.size
+        panel_width, panel_height = self.__main_window.listbox.get_size()
+        win_width = max(10, win_width - panel_width - 30)
+        win_height = max(10, win_height - 30)
+        pdf_width = int(0.5 * win_width)
+        pdf_height = win_height
+        # crop PDF width and height to keep A4 page ratio
+        pdf_height = min(pdf_height, int(pdf_width * 1.414))
+        pdf_width = min(pdf_width, int(pdf_height / 1.414))
+        img_x, img_y = pdf_width, pdf_height
         png = pdf.get_pdf_page((img_x, img_y))
-        img_pdf.update(data=png.tobytes())
+        img_pdf1.update(data=png.tobytes())
+        if (pdf.current_page_num() + 1) < len(pdf):
+            png = pdf.get_pdf_page((img_x, img_y), page_offset=1)
+            if png is not None:
+                img_pdf2.update(data=png.tobytes())
 
-    def __load_pdf(self, file_path):
+    def __load_pdf(self, file_path: str, start_page_num: int):
         self.__pdf = PdfDocument(file_path)
-        self.__show_pdf_page()
+        self.__pdf.go_to_page(start_page_num)
+        self.__show_pdf_pages()
 
-    def __run_doc(self, doc_path):
+    def __run_doc(self, doc_path, start_page_num: int):
         expanded_path = self.__documents.expand_path(doc_path)
-        self.__load_pdf(expanded_path)
+        self.__load_pdf(expanded_path, start_page_num)
 
     def __run_process(self, code):
         self.__stop_player()
@@ -177,11 +192,14 @@ class Application:
             print('Cannot find document')
             return
         document = self.__documents.get_items()[code]
+        self.__main_window.img_pdf1.update(data=None)
+        self.__main_window.img_pdf2.update(data=None)
 
         if 'pdf' in document.keys() and len(document['pdf'])>0:
             doc_path = document['pdf']
+            start_page_num = document['page_num'] if 'page_num' in document else 0
             self.__main_window.console.print('Opening PDF: {}'.format(doc_path))
-            self.__run_doc(doc_path)
+            self.__run_doc(doc_path, start_page_num)
 
         if 'audio' in document.keys() and len(document['audio'])>0:
             self.__main_window.console.print('Preparation wait ({} seconds)...'.format(Application.AUDIO_WAIT))
@@ -208,12 +226,16 @@ class Application:
                 elif event == 'Pause':
                     self.__pause_item()
                 elif event == 'Up' or event == 'Prior:112':
-                    self.__next_page()
-                elif event == 'Down' or event == 'Next:117':
                     self.__prev_page()
+                elif event == 'Down' or event == 'Next:117':
+                    self.__next_page()
                 elif event == 'ZoomIn' or event == 'KP_Add:86':
-                    self.__zoom_in()
+                    self.__next_page()
                 elif event == 'ZoomOut' or event == 'KP_Subtract:82':
+                    self.__prev_page()
+                elif event == 'KP_Divide:106':
+                    self.__zoom_in()
+                elif event == 'KP_Multiply:63':
                     self.__zoom_out()
                 elif event == 'UPDATE_PROGRESS':
                     self.__update_progress()
@@ -256,7 +278,17 @@ class Application:
         self.__is_playing = False
         console.print('Finished\n')
         window.progress_bar.update(0)
-        self.__main_window.img_pdf.update(data=None)
+
+        # win_size = sg.Window.get_screen_size()
+        # win_size = (win_size[0] - 10, win_size[1] - 70)
+        # pdf_width = int(0.3 * win_size[0])
+        # empty_image = Image.new('RGB', (pdf_width, win_size[1]), (255, 255, 255))
+        # empty_image_bytes = io.BytesIO()
+        # empty_image.save(empty_image_bytes, format='PNG')
+        # empty_image_data = empty_image_bytes.getvalue()
+
+        self.__main_window.img_pdf1.update(data=None)
+        self.__main_window.img_pdf2.update(data=None)
         self.__update_ui_states()
         window.refresh()
 
@@ -298,7 +330,7 @@ class Application:
 
     def __update_ui_states(self):
         selected = self.__main_window.listbox.get()
-        is_selected = (selected and len(selected) == 0)
+        is_selected = (selected and len(selected) > 0)
         window = self.__main_window
         window.btn_stop.update(disabled=not self.__is_playing)
         window.btn_pause.update(disabled=not self.__is_playing)
@@ -310,7 +342,7 @@ class Application:
         window.btn_down.update(disabled=not self.__is_playing)
         window.btn_zoom_in.update(disabled=not self.__is_playing)
         window.btn_zoom_out.update(disabled=not self.__is_playing)
-        window.btn_edit.update(disabled=self.__is_playing or not is_selected)
+        window.btn_edit.update(disabled=not is_selected or self.__is_playing)
         window.btn_add_new.update(disabled=self.__is_playing)
         window.refresh()
 
@@ -355,29 +387,29 @@ class Application:
         pdf = self.__pdf
         if not pdf:
             return
-        pdf.prev_page()
-        self.__show_pdf_page()
+        pdf.next_page(step=2)
+        self.__show_pdf_pages()
 
     def __prev_page(self):
         pdf = self.__pdf
         if not pdf:
             return
-        pdf.next_page()
-        self.__show_pdf_page()
+        pdf.prev_page(step=2)
+        self.__show_pdf_pages()
 
     def __zoom_in(self):
         pdf = self.__pdf
         if not pdf:
             return
         pdf.zoom_in()
-        self.__show_pdf_page()
+        self.__show_pdf_pages()
 
     def __zoom_out(self):
         pdf = self.__pdf
         if not pdf:
             return
         pdf.zoom_out()
-        self.__show_pdf_page()
+        self.__show_pdf_pages()
 
 
     def __add_entry(self):
@@ -390,6 +422,7 @@ class Application:
 
 
     def __edit_entry(self):
+        current_index = self.__main_window.listbox.get_indexes()[0]
         selected = self.__main_window.listbox.get()
         if selected is None or len(selected) == 0:
             sg.popup('Nothing is selected in the list')
@@ -404,3 +437,4 @@ class Application:
         if result is not None:
             self.__documents.update_entry(code, result[1])
             self.__main_window.listbox.update(self.__documents.get_entries())
+            self.__main_window.listbox.update(set_to_index=[current_index])

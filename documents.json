@@ -19,7 +19,8 @@
       "audio": "NIGEL_GETTING_STARTED/5-min-workout/5_Minute_Warmup_Workout_Practice_Track.mp3",
       "tags": [
         "alto"
-      ]
+      ],
+      "page_num": 1
     },
     "risingsun": {
       "name": "HouseOfTheRisingSun",
@@ -179,7 +180,7 @@
       ]
     },
     "": {
-      "name": "",
+      "name": "dfdf",
       "pdf": "",
       "audio": "",
       "tags": []
@@ -192,6 +193,15 @@
         "alto",
         "tenor"
       ]
+    },
+    "5min_workout": {
+      "name": "5min workout",
+      "pdf": "/home/gangel/Documents/PRIV/Saxophone/SaxSchool/MovingOn/Workout/5_Min_Pentatonic_Workout_-_All_Saxes.pdf",
+      "audio": "",
+      "tags": [
+        "tenor"
+      ],
+      "page_num": 2
     }
   }
 }

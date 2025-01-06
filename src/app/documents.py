@@ -4,12 +4,13 @@ import os
 
 class DocumentEntry:
 
-    def __init__(self, code, name, is_audio=False, is_pdf=False, tags=[]):
+    def __init__(self, code, name, is_audio=False, is_pdf=False, tags=[], page_num=None):
         self.code = code
         self.name = name
         self.is_audio = is_audio
         self.is_pdf = is_pdf
         self.tags = tags
+        self.page_num = page_num
 
     def __str__(self):
         return self.name
@@ -55,8 +56,9 @@ class Documents:
             is_audio_only = ' (audio only)' if is_audio and not is_pdf else ''
             is_pdf_only = ' (pdf only)' if is_pdf and not is_audio else ''
             tags = list(doc['tags']) if 'tags' in doc else []
+            page_num = doc['page_num'] if 'page_num' in doc else None
             output.append(DocumentEntry(key, name=f"{doc['name']}{is_audio_only}{is_pdf_only}",
-                          is_audio=is_audio, is_pdf=is_pdf, tags=tags))
+                          is_audio=is_audio, is_pdf=is_pdf, tags=tags, page_num=page_num))
         return sorted(output, key=lambda item: item.name)
 
 
